@@ -1,0 +1,35 @@
+services:
+  app:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: golang-backend
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./sqlite:/app/sqlite
+    environment:
+      - CGO_ENABLED=1
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    networks:
+      - app-network
+
+  frontend:       # <- ย้าย frontend ออกมาเท่ากับ app
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: nextjs-frontend
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./frontend/.env
+    depends_on:
+      - app
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
